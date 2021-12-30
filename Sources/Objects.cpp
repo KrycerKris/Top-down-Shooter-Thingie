@@ -52,17 +52,22 @@ void Enemy::LookAt(sf::Vector2f target) {
 void Enemy::Start() {
 		sprDefault.setOrigin(40, 40);
 
-		//x = sprDefault.getPosition().x;
-		//y = sprDefault.getPosition().y;
 		x = rand() % WINDOW_WIDTH;
 		y = rand() % WINDOW_HEIGHT;
 		sprDefault.setPosition(x, y);
+		directionOffset = nmUtils::RandVector2f();
 }
 
 void Enemy::Update() {
+	const sf::Vector2f &playerPos = player->sprDefault.getPosition();
 	direction = sf::Vector2f(playerPos.x - x, playerPos.y - y);
 	direction = nmUtils::NormaliseVector2f(direction);
 
+	if (wanderDelay.getElapsedTime().asSeconds() > 3) {
+		directionOffset = nmUtils::RandVector2f();
+		wanderDelay.restart();
+	}
+	direction += directionOffset;
 	x += direction.x * ZOMBIE_SPEED;
 	y += direction.y * ZOMBIE_SPEED;
 

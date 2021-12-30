@@ -44,6 +44,7 @@ int main()
 	for (int i = 0; i < ZOMBIE_AMOUNT; i++) {
 		enemyInstances.emplace_back(i);
 		enemyInstances[i].sprDefault.setTexture(tEnemy);
+		enemyInstances[i].player = &player;
 		enemyInstances[i].Start();
 
 	}
@@ -67,16 +68,17 @@ int main()
 
 
 		//Update enemies' target coords and update them
-		for (int i = 0; i < ZOMBIE_AMOUNT; i++) {
-			enemyInstances[i].playerPos = player.sprDefault.getPosition();
+		for (int i = 0; i < enemyInstances.size(); i++) {
 			enemyInstances[i].Update();
 
-			if (nmUtils::DistanceBetween(enemyInstances[i].playerPos, enemyInstances[i].sprDefault.getPosition()) < COLLISION_RANGE ) {
+			if (nmUtils::DistanceBetween(player.sprDefault.getPosition(), enemyInstances[i].sprDefault.getPosition()) < COLLISION_RANGE) {
 				player.sprDefault.setTexture(tEnemy);
 			}
 			for (int j = 0; j < bulletInstances.size(); j++) {
 				if (nmUtils::DistanceBetween(bulletInstances[j].circle.getPosition(), enemyInstances[i].sprDefault.getPosition()) < BULLET_COLLISION) {
 					enemyInstances[i].sprDefault.setTexture(tPeter);
+					enemyInstances.erase(enemyInstances.begin() + i);
+					bulletInstances.erase(bulletInstances.begin() + j);
 				}
 			}
 		}
@@ -128,7 +130,7 @@ int main()
 		app.draw(sprBackground);
 
 		//draw enemies
-		for (int i = 0; i < ZOMBIE_AMOUNT; i++) {
+		for (int i = 0; i < enemyInstances.size(); i++) {
 			app.draw(enemyInstances[i].sprDefault);
 		}
 

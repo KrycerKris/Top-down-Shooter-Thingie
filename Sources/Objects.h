@@ -21,12 +21,11 @@ public:
 	float x;
 	float y;
 	sf::Vector2f direction;
-	Player player;
+	sf::Vector2f directionOffset;
+	Player *player;
+	sf::Clock wanderDelay;
 	void Start();
 	void Update();
-
-	sf::Vector2f playerPos;
-
 	sf::Texture tDefault;
 	sf::Sprite sprDefault;
 	void LookAt(sf::Vector2f);
