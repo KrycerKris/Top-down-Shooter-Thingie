@@ -37,4 +37,7 @@ public:
 	float x;
 	float y;
 	sf::Vector2f direction;
+	sf::CircleShape circle;
+	void Start();
+	void Update();
 };

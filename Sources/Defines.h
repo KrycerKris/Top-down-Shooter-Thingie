@@ -7,3 +7,5 @@ const float ZOMBIE_SPEED = 1.2;
 const float PI = 3.14159265358979323846;
 const int ZOMBIE_AMOUNT = 5;
 const float COLLISION_RANGE = 40.0;
+const float BULLET_COLLISION = 40.0;
+const float BULLET_SPEED = 10;

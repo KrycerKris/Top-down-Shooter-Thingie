@@ -25,9 +25,19 @@ int main()
 	Texture tEnemy;
 	tEnemy.loadFromFile("Resources/enmy.png");
 
+	//Load enemy textures
+	Texture tPeter;
+	tPeter.loadFromFile("Resources/peter.png");
+
 	//Instantiate player
 	Player player;
 	player.Start();
+
+	//Clock
+	sf::Clock bulletDelay;
+
+	//Array for storing all da bullets
+	std::vector<Bullet> bulletInstances;
 
 	//Instantiate enemies, give them textures
 	std::vector<Enemy> enemyInstances;
@@ -64,8 +74,17 @@ int main()
 			if (nmUtils::DistanceBetween(enemyInstances[i].playerPos, enemyInstances[i].sprDefault.getPosition()) < COLLISION_RANGE ) {
 				player.sprDefault.setTexture(tEnemy);
 			}
+			for (int j = 0; j < bulletInstances.size(); j++) {
+				if (nmUtils::DistanceBetween(bulletInstances[j].circle.getPosition(), enemyInstances[i].sprDefault.getPosition()) < BULLET_COLLISION) {
+					enemyInstances[i].sprDefault.setTexture(tPeter);
+				}
+			}
 		}
 
+		//Update bullets
+		for (int i = 0; i < bulletInstances.size(); i++) {
+			bulletInstances[i].Update();
+		}
 
 		//Player movement
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
@@ -81,11 +100,24 @@ int main()
 			player.velocity.x += ACCELERATION;
 		}
 
+
+
 		//Make Player Face Mouse
 		std::cout << "Mouse X: " << sf::Mouse::getPosition().x << " || Mouse Y: " << sf::Mouse::getPosition().y;
 		player.LookAt(sf::Vector2f(sf::Mouse::getPosition(app).x, sf::Mouse::getPosition(app).y));
 
-		//Check if player is colliding with any of the enemies
+		//Fire Gun
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && bulletDelay.getElapsedTime().asSeconds() > 2) {
+			bulletDelay.restart();
+			bulletInstances.emplace_back();
+			sf::Vector2f temp1 = player.sprDefault.getPosition();
+			sf::Vector2f temp2 = (sf::Vector2f)sf::Mouse::getPosition(app);
+			sf::Vector2f temp3 = sf::Vector2f(temp2.x - temp1.x, temp2.y - temp1.y);
+			bulletInstances[bulletInstances.size()-1].direction = nmUtils::NormaliseVector2f(temp3);
+			bulletInstances[bulletInstances.size() - 1].x = temp1.x;
+			bulletInstances[bulletInstances.size() - 1].y = temp1.y;
+			bulletInstances[bulletInstances.size()-1].Start();
+		}
 
 
 
@@ -99,6 +131,12 @@ int main()
 		for (int i = 0; i < ZOMBIE_AMOUNT; i++) {
 			app.draw(enemyInstances[i].sprDefault);
 		}
+
+		//draw bullets
+		for (int i = 0; i < bulletInstances.size(); i++) {
+			app.draw(bulletInstances[i].circle);
+		}
+
 		//draw player
 		app.draw(player.sprDefault);
 

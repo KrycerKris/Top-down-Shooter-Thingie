@@ -69,3 +69,14 @@ void Enemy::Update() {
 	LookAt(playerPos);
 	sprDefault.setPosition(x, y);
 }
+
+void Bullet::Start() {
+	circle.setRadius(2);
+	circle.setFillColor(sf::Color::Black);
+}
+
+void Bullet::Update() {
+	x += direction.x * BULLET_SPEED;
+	y += direction.y * BULLET_SPEED;
+	circle.setPosition(x, y);
+}
