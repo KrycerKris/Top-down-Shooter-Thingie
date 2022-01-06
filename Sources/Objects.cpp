@@ -9,9 +9,10 @@ void Player::LookAt(sf::Vector2f target) {
 
 void Player::Start() {
 	tDefault.loadFromFile("Resources/playr.png");
+	tHurt1.loadFromFile("Resources/playr_h1.png");
+	tHurt2.loadFromFile("Resources/playr_h2.png");
 	sprDefault.setTexture(tDefault);
 	sprDefault.setOrigin(40, 40);
-
 	//x = sprDefault.getPosition().x;
 	//y = sprDefault.getPosition().y;
 	x = WINDOW_WIDTH / 2;
@@ -39,9 +40,33 @@ void Player::Update() {
 
 	velocity *= DRAG;
 
-
-
 	sprDefault.setPosition(x, y);
+
+	if (FrameOdd && iFrames.getElapsedTime().asSeconds() < 2) {
+		sprDefault.setColor(sf::Color::Transparent);
+		FrameOdd = false;
+	}
+	else {
+		sprDefault.setColor(sf::Color::White);
+		FrameOdd = true;
+	}
+
+	if (health == 0) sprDefault.setColor(sf::Color::Transparent);
+
+}
+
+bool Player::TakeDamage() {
+	if (iFrames.getElapsedTime().asSeconds() > 2) {
+		health--;
+		if (health == 2) sprDefault.setTexture(tHurt1);
+		if (health == 1) sprDefault.setTexture(tHurt2);
+
+		iFrames.restart();
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 void Enemy::LookAt(sf::Vector2f target) {
 
@@ -50,12 +75,17 @@ void Enemy::LookAt(sf::Vector2f target) {
 }
 
 void Enemy::Start() {
-		sprDefault.setOrigin(40, 40);
-
+	sprDefault.setOrigin(40, 40);
+	x = rand() % WINDOW_WIDTH;
+	y = rand() % WINDOW_HEIGHT;
+	sprDefault.setPosition(x, y);
+	while (nmUtils::DistanceBetween(sprDefault.getPosition(), player->sprDefault.getPosition()) < SPAWN_RANGE) {
 		x = rand() % WINDOW_WIDTH;
 		y = rand() % WINDOW_HEIGHT;
 		sprDefault.setPosition(x, y);
-		directionOffset = nmUtils::RandVector2f();
+	}
+
+	directionOffset = nmUtils::RandVector2f();
 }
 
 void Enemy::Update() {

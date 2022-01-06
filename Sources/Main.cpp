@@ -24,10 +24,25 @@ int main()
 	//Load enemy textures
 	Texture tEnemy;
 	tEnemy.loadFromFile("Resources/enmy.png");
+	Texture tPlayerEnemy;
+	tPlayerEnemy.loadFromFile("Resources/playr_enmy.png");
 
-	//Load enemy textures
-	Texture tPeter;
-	tPeter.loadFromFile("Resources/peter.png");
+	//Load numbers
+	Texture t1;
+	t1.loadFromFile("Resources/1.png");
+	Texture t2;
+	t2.loadFromFile("Resources/2.png");
+	Texture t3;
+	t3.loadFromFile("Resources/3.png");
+	sf::Sprite counter;
+	counter.setTexture(t1);
+	counter.setOrigin(32, 32);
+	counter.setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+	//bool PlayedStart = false;
+
+
+	sf::Text score;
+
 
 	//Instantiate player
 	Player player;
@@ -55,6 +70,8 @@ int main()
 		circle.setOutlineColor(sf::Color::Red);
 		circle.setOutlineThickness(5);
 
+
+
 	while (app.isOpen())
 	{
 		Event e;
@@ -72,11 +89,22 @@ int main()
 			enemyInstances[i].Update();
 
 			if (nmUtils::DistanceBetween(player.sprDefault.getPosition(), enemyInstances[i].sprDefault.getPosition()) < COLLISION_RANGE) {
-				player.sprDefault.setTexture(tEnemy);
+				if (player.health > 1) {
+					player.TakeDamage();
+				}
+				else if (player.health == 1) {
+					if (player.TakeDamage()) {
+						enemyInstances.emplace_back();
+						enemyInstances[enemyInstances.size() - 1].sprDefault.setTexture(tPlayerEnemy);
+						enemyInstances[enemyInstances.size() - 1].player = &player;
+						enemyInstances[enemyInstances.size() - 1].Start();
+						enemyInstances[enemyInstances.size() - 1].sprDefault.setPosition(player.sprDefault.getPosition());
+
+					}
+				}
 			}
 			for (int j = 0; j < bulletInstances.size(); j++) {
 				if (nmUtils::DistanceBetween(bulletInstances[j].circle.getPosition(), enemyInstances[i].sprDefault.getPosition()) < BULLET_COLLISION) {
-					enemyInstances[i].sprDefault.setTexture(tPeter);
 					enemyInstances.erase(enemyInstances.begin() + i);
 					bulletInstances.erase(bulletInstances.begin() + j);
 				}
@@ -109,7 +137,7 @@ int main()
 		player.LookAt(sf::Vector2f(sf::Mouse::getPosition(app).x, sf::Mouse::getPosition(app).y));
 
 		//Fire Gun
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && bulletDelay.getElapsedTime().asSeconds() > 2) {
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && bulletDelay.getElapsedTime().asSeconds() > 2 && player.health > 0) {
 			bulletDelay.restart();
 			bulletInstances.emplace_back();
 			sf::Vector2f temp1 = player.sprDefault.getPosition();
@@ -152,8 +180,28 @@ int main()
 
 			circle.setPosition((sf::Vector2f)sf::Mouse::getPosition(app));
 			app.draw(circle);
-
-
+		//if (!PlayedStart) {
+		//	//Starting countdown
+		//	sf::Clock startTimer;
+		//	while (startTimer.getElapsedTime().asSeconds() < 1) {
+		//		counter.setScale(counter.getScale() * REDUCTION_RATE);
+		//		app.draw(counter);
+		//		app.display();
+		//	}
+		//	counter.setTexture(t2);
+		//	while (startTimer.getElapsedTime().asSeconds() < 2) {
+		//		counter.setScale(counter.getScale() * REDUCTION_RATE);
+		//		app.draw(counter);
+		//		app.display();
+		//	}
+		//	counter.setTexture(t3);
+		//	while (startTimer.getElapsedTime().asSeconds() < 3) {
+		//		counter.setScale(counter.getScale() * REDUCTION_RATE);
+		//		app.draw(counter);
+		//		app.display();
+		//	}
+		//	PlayedStart = true;
+		//}
 		app.display();
 	}
 
