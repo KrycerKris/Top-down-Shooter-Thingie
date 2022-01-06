@@ -42,7 +42,7 @@ void Player::Update() {
 
 	sprDefault.setPosition(x, y);
 
-	if (FrameOdd && iFrames.getElapsedTime().asSeconds() < 2) {
+	if (FrameOdd && iFrames.getElapsedTime().asSeconds() < IFRAME_LENGTH) {
 		sprDefault.setColor(sf::Color::Transparent);
 		FrameOdd = false;
 	}
@@ -56,7 +56,7 @@ void Player::Update() {
 }
 
 bool Player::TakeDamage() {
-	if (iFrames.getElapsedTime().asSeconds() > 2) {
+	if (iFrames.getElapsedTime().asSeconds() > IFRAME_LENGTH) {
 		health--;
 		if (health == 2) sprDefault.setTexture(tHurt1);
 		if (health == 1) sprDefault.setTexture(tHurt2);
@@ -76,15 +76,18 @@ void Enemy::LookAt(sf::Vector2f target) {
 
 void Enemy::Start() {
 	sprDefault.setOrigin(40, 40);
-	x = rand() % WINDOW_WIDTH;
-	y = rand() % WINDOW_HEIGHT;
-	sprDefault.setPosition(x, y);
-	while (nmUtils::DistanceBetween(sprDefault.getPosition(), player->sprDefault.getPosition()) < SPAWN_RANGE) {
-		x = rand() % WINDOW_WIDTH;
-		y = rand() % WINDOW_HEIGHT;
-		sprDefault.setPosition(x, y);
-	}
+	x = rand() % 100 - 50;
+	y = rand() % 100 - 50;
+	if (x > 0) x += WINDOW_WIDTH;
+	if (y > 0) y += WINDOW_HEIGHT;
 
+	while (nmUtils::DistanceBetween(sprDefault.getPosition(), player->sprDefault.getPosition()) < SPAWN_RANGE) {
+		x = rand() % 100 - 50;
+		y = rand() % 100 - 50;
+		if (x > 0) x += WINDOW_WIDTH;
+		if (y > 0) y += WINDOW_HEIGHT;
+	}
+	sprDefault.setPosition(x, y);
 	directionOffset = nmUtils::RandVector2f();
 }
 

@@ -7,6 +7,9 @@ float nmUtils::AngleBetween(sf::Vector2f &point1, sf::Vector2f &point2) {
 sf::Vector2f nmUtils::NormaliseVector2f(const sf::Vector2f &vector)
 {
 	double length = sqrt(pow(vector.x, 2) + pow(vector.y, 2));
+	if (abs(length) < 1E-8) {
+		return sf::Vector2f(0, 0);
+	}
 	return sf::Vector2f(vector.x / length, vector.y / length);
 }
 
