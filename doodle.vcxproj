@@ -96,9 +96,6 @@
     <ClCompile Include="Sources\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Resources\doodle2.png" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Sources\Defines.h" />
     <ClInclude Include="Sources\Objects.h" />
     <ClInclude Include="Sources\Utils.h" />

@@ -30,7 +30,6 @@ int main()
 
 	ofstream highscoreFile("highscore.txt");
 
-	
 
 	//Load BG Image
 	Texture tBackground;
@@ -56,10 +55,10 @@ int main()
 	Texture t3;
 	t3.loadFromFile("Resources/3.png");
 	sf::Sprite counter;
-	counter.setTexture(t1);
+	counter.setTexture(t3);
 	counter.setOrigin(32, 32);
 	counter.setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
-	//bool PlayedStart = false;
+	bool PlayedStart = false;
 	
 	//Add score
 	sf::Text scoreLabel;
@@ -111,6 +110,15 @@ int main()
 	YouDied.setOutlineThickness(7);
 	YouDied.setString("You have perished.");
 
+	sf::Text NewHighScore;
+	NewHighScore.setPosition(175, 350);
+	NewHighScore.setFont(font);
+	NewHighScore.setCharacterSize(20);
+	NewHighScore.setFillColor(sf::Color::Transparent);
+	NewHighScore.setOutlineColor(sf::Color::Transparent);
+	NewHighScore.setOutlineThickness(4);
+	NewHighScore.setString("You did get a new high score though!");
+
 	//Instantiate player
 	Player player;
 	player.Start();
@@ -149,22 +157,26 @@ int main()
 		while (app.pollEvent(e))
 		{
 			if (e.type == Event::Closed)
-				
+			{
 				app.close();
+				highscoreFile << highscore;
+				highscoreFile.close();
+			}
 		}
 
 		player.Update();
-
 
 		//Update enemies' target coords and update them
 		for (int i = 0; i < enemyInstances.size(); i++) {
 			enemyInstances[i].Update();
 
+			//Collision
 			if (nmUtils::DistanceBetween(player.sprDefault.getPosition(), enemyInstances[i].sprDefault.getPosition()) < COLLISION_RANGE) {
 				if (player.health > 1) {
 					player.TakeDamage();
 				}
 				else if (player.health == 1) {
+					//Death
 					if (player.TakeDamage()) {
 						enemyInstances.emplace_back();
 						enemyInstances[enemyInstances.size() - 1].sprDefault.setTexture(tPlayerEnemy);
@@ -173,8 +185,11 @@ int main()
 						enemyInstances[enemyInstances.size() - 1].sprDefault.setPosition(player.sprDefault.getPosition());
 						enemyInstances[enemyInstances.size() - 1].x = player.sprDefault.getPosition().x;
 						enemyInstances[enemyInstances.size() - 1].y = player.sprDefault.getPosition().y;
-						if(score > highscore)
+						if (score > highscore) {
 							highscoreFile << score;
+							NewHighScore.setFillColor(sf::Color::Yellow);
+							NewHighScore.setOutlineColor(sf::Color(150, 0, 0, 255));
+						}
 						highscoreFile.close();
 						YouDied.setFillColor(sf::Color::Red);
 						YouDied.setOutlineColor(sf::Color(150, 0, 0, 255));
@@ -183,7 +198,7 @@ int main()
 						player.y = rand() % 300 - 150;
 						if (player.x > 0) player.x += WINDOW_WIDTH;
 						if (player.y > 0) player.y += WINDOW_HEIGHT;
-
+						highScoreText.setString(sf::String(to_string(score)));
 					}
 				}
 			}
@@ -289,34 +304,50 @@ int main()
 		app.draw(highScoreText);
 		app.draw(blackening);
 		app.draw(YouDied);
+		app.draw(NewHighScore);
 
 			//Debug shit
 
 			circle.setPosition((sf::Vector2f)sf::Mouse::getPosition(app));
 			app.draw(circle);
 
-		//if (!PlayedStart) {
-		//	//Starting countdown
-		//	sf::Clock startTimer;
-		//	while (startTimer.getElapsedTime().asSeconds() < 1) {
-		//		counter.setScale(counter.getScale() * REDUCTION_RATE);
-		//		app.draw(counter);
-		//		app.display();
-		//	}
-		//	counter.setTexture(t2);
-		//	while (startTimer.getElapsedTime().asSeconds() < 2) {
-		//		counter.setScale(counter.getScale() * REDUCTION_RATE);
-		//		app.draw(counter);
-		//		app.display();
-		//	}
-		//	counter.setTexture(t3);
-		//	while (startTimer.getElapsedTime().asSeconds() < 3) {
-		//		counter.setScale(counter.getScale() * REDUCTION_RATE);
-		//		app.draw(counter);
-		//		app.display();
-		//	}
-		//	PlayedStart = true;
-		//}
+		if (!PlayedStart) {
+			//Starting countdown
+			sf::Clock startTimer;
+			while (startTimer.getElapsedTime().asSeconds() < 1) {
+				//draw enemies
+				app.draw(sprBackground);
+				for (int i = 0; i < enemyInstances.size(); i++) {
+					app.draw(enemyInstances[i].sprDefault);
+				}
+				app.draw(player.sprDefault);
+				app.draw(counter);
+				app.display();
+			}
+			counter.setTexture(t2);
+			while (startTimer.getElapsedTime().asSeconds() < 2) {
+				app.draw(sprBackground);
+				//draw enemies
+				for (int i = 0; i < enemyInstances.size(); i++) {
+					app.draw(enemyInstances[i].sprDefault);
+				}
+				app.draw(player.sprDefault);
+				app.draw(counter);
+				app.display();
+			}
+			counter.setTexture(t1);
+			while (startTimer.getElapsedTime().asSeconds() < 3) {
+				app.draw(sprBackground);
+				//draw enemies
+				for (int i = 0; i < enemyInstances.size(); i++) {
+					app.draw(enemyInstances[i].sprDefault);
+				}
+				app.draw(player.sprDefault);
+				app.draw(counter);
+				app.display();
+			}
+			PlayedStart = true;
+		}
 		app.display();
 	}
 
@@ -324,5 +355,3 @@ int main()
 
 	return 0;
 }
-
-
