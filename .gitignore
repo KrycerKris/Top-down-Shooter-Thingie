@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Build/World War Z-1 v0.1-alpha.zip
+/World War Z-1 v0.2-alpha.zip

@@ -1,46 +1,58 @@
 #include "Objects.h"
 #include "Utils.h"
+#include "Managers.h"
 
-void Player::LookAt(sf::Vector2f target) {
 
-	sf::Vector2f target2 = sprDefault.getPosition();
+sf::Vector2f Entity::GetPos() {
+	return position;
+}
+
+sf::Vector2f Entity::GetVel() {
+	return velocity;
+}
+
+void Entity::SetVel(sf::Vector2f newVel) {
+	velocity = newVel;
+}
+
+void Character::LookAt(sf::Vector2f target) {
+
+	sf::Vector2f target2 = position;
 	sprDefault.setRotation(nmUtils::AngleBetween(target2, target));
 }
 
-void Player::Start() {
+Player::Player(sf::Vector2f startPos) {
 	tDefault.loadFromFile("Resources/playr.png");
 	tHurt1.loadFromFile("Resources/playr_h1.png");
 	tHurt2.loadFromFile("Resources/playr_h2.png");
 	sprDefault.setTexture(tDefault);
 	sprDefault.setOrigin(40, 40);
-	//x = sprDefault.getPosition().x;
-	//y = sprDefault.getPosition().y;
-	x = WINDOW_WIDTH / 2;
-	y = WINDOW_HEIGHT / 2;
-	sprDefault.setPosition(x, y);
+	position = startPos;
+
+	sprDefault.setPosition(position.x, position.y);
 }
 
+
 void Player::Update() {
-	if (y > WINDOW_HEIGHT && velocity.y > 0) {
+	if (position.y > WINDOW_HEIGHT && velocity.y > 0) {
 		velocity.y = 0;
 	}
-	if (y < 0 && velocity.y < 0) {
+	if (position.y < 0 && velocity.y < 0) {
 		velocity.y = 0;
 	}
-	if (x > WINDOW_HEIGHT && velocity.x > 0) {
+	if (position.x > WINDOW_HEIGHT && velocity.x > 0) {
 		velocity.x = 0;
 	}
-	if (x < 0 && velocity.x < 0) {
+	if (position.x < 0 && velocity.x < 0) {
 		velocity.x = 0;
 	}
 
-	
-	x += velocity.x;
-	y += velocity.y;
+	position.x += velocity.x;
+	position.y += velocity.y;
 
 	velocity *= DRAG;
 
-	sprDefault.setPosition(x, y);
+	sprDefault.setPosition(position.x, position.y);
 
 	if (FrameOdd && iFrames.getElapsedTime().asSeconds() < IFRAME_LENGTH) {
 		sprDefault.setColor(sf::Color::Transparent);
@@ -53,9 +65,14 @@ void Player::Update() {
 
 	if (health == 0) sprDefault.setColor(sf::Color::Transparent);
 
+	if (colManager.CheckCollPlayer()) { Player::Hurt(); }
+}
+bool Character::Hurt() {
+	health--;
+	return true;
 }
 
-bool Player::TakeDamage() {
+bool Player::Hurt() {
 	if (iFrames.getElapsedTime().asSeconds() > IFRAME_LENGTH) {
 		health--;
 		if (health == 2) sprDefault.setTexture(tHurt1);
@@ -68,18 +85,18 @@ bool Player::TakeDamage() {
 		return false;
 	}
 }
-void Enemy::LookAt(sf::Vector2f target) {
 
-	sf::Vector2f target2 = sprDefault.getPosition();
-	sprDefault.setRotation(nmUtils::AngleBetween(target2, target));
-}
 
-void Enemy::Start() {
+Enemy::Enemy(sf::Vector2f startPos, Player *playerStart) {
 	sprDefault.setOrigin(40, 40);
-	x = rand() % 100 - 50;
+
+	//Rand spawn pos code, leaving it for future me <3 :***
+	/*
+	position.x = rand() % 100 - 50;
 	y = rand() % 100 - 50;
 	if (x > 0) x += WINDOW_WIDTH;
 	if (y > 0) y += WINDOW_HEIGHT;
+	
 
 	while (nmUtils::DistanceBetween(sprDefault.getPosition(), player->sprDefault.getPosition()) < SPAWN_RANGE) {
 		x = rand() % 100 - 50;
@@ -87,13 +104,18 @@ void Enemy::Start() {
 		if (x > 0) x += WINDOW_WIDTH;
 		if (y > 0) y += WINDOW_HEIGHT;
 	}
-	sprDefault.setPosition(x, y);
+	*/
+	position = startPos;
+	sprDefault.setPosition(startPos);
 	directionOffset = nmUtils::RandVector2f();
+
+	player = playerStart;
+
 }
 
 void Enemy::Update() {
 	const sf::Vector2f &playerPos = player->sprDefault.getPosition();
-	direction = sf::Vector2f(playerPos.x - x, playerPos.y - y);
+	direction = sf::Vector2f(playerPos.x - position.x, playerPos.y - position.y);
 	direction = nmUtils::NormaliseVector2f(direction);
 
 	if (wanderDelay.getElapsedTime().asSeconds() > 3) {
@@ -101,20 +123,28 @@ void Enemy::Update() {
 		wanderDelay.restart();
 	}
 	direction += directionOffset;
-	x += direction.x * ZOMBIE_SPEED;
-	y += direction.y * ZOMBIE_SPEED;
+	position.x += direction.x * ZOMBIE_SPEED;
+	position.y += direction.y * ZOMBIE_SPEED;
 
 	LookAt(playerPos);
-	sprDefault.setPosition(x, y);
+	sprDefault.setPosition(position.x, position.y);
 }
 
-void Bullet::Start() {
+Bullet::Bullet(sf::Vector2f direction, int bulletSpeed) {
 	circle.setRadius(2);
 	circle.setFillColor(sf::Color::Black);
+
+	velocity = direction * float(bulletSpeed);
 }
 
 void Bullet::Update() {
-	x += direction.x * BULLET_SPEED;
-	y += direction.y * BULLET_SPEED;
-	circle.setPosition(x, y);
+	//Notice: no drag
+	position.x += velocity.x * BULLET_SPEED;
+	position.y += velocity.y * BULLET_SPEED;
+	circle.setPosition(position.x, position.y);
+	CheckCollisions();
+}
+
+void Bullet::CheckCollisions() {
+	//TODO
 }

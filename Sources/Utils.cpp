@@ -25,3 +25,12 @@ sf::Vector2f nmUtils::RandVector2f()
 	return sf::Vector2f(x, y);
 
 }
+
+sf::Vector2f nmUtils::RandSpawn() {
+	sf::Vector2f position;
+	position.x = rand() % 100 - 50;
+	position.y = rand() % 100 - 50;
+	if (position.x > 0) position.x += WINDOW_WIDTH;
+	if (position.y > 0) position.y += WINDOW_HEIGHT;
+	return position;
+}

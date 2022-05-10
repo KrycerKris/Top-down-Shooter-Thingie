@@ -7,4 +7,5 @@ namespace nmUtils
 	sf::Vector2f NormaliseVector2f(const sf::Vector2f &vector);
 	float DistanceBetween(const sf::Vector2f &point1,const sf::Vector2f &point2);
 	sf::Vector2f RandVector2f();
+	sf::Vector2f RandSpawn();
 }

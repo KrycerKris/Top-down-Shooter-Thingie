@@ -10,6 +10,9 @@
     <ClCompile Include="Sources\Utils.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Managers.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">
@@ -27,6 +30,9 @@
       <Filter>Sources</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Utils.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Managers.h">
       <Filter>Sources</Filter>
     </ClInclude>
   </ItemGroup>

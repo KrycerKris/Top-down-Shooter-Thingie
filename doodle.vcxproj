@@ -92,11 +92,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Sources/Main.cpp" />
+    <ClCompile Include="Sources\Managers.cpp" />
     <ClCompile Include="Sources\Objects.cpp" />
     <ClCompile Include="Sources\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Defines.h" />
+    <ClInclude Include="Sources\Managers.h" />
     <ClInclude Include="Sources\Objects.h" />
     <ClInclude Include="Sources\Utils.h" />
   </ItemGroup>
