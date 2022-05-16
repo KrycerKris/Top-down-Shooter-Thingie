@@ -24,9 +24,6 @@ int main()
 	tBackground.loadFromFile("Resources/bg.png");
 	Sprite sprBackground(tBackground);
 
-	//Load enemy textures
-	Texture tEnemy;
-	tEnemy.loadFromFile("Resources/enmy.png");
 	Texture tPlayerEnemy;
 	tPlayerEnemy.loadFromFile("Resources/playr_enmy.png");
 
@@ -44,6 +41,16 @@ int main()
 	t3.loadFromFile("Resources/3.png");
 	sf::Sprite counter;	
 
+
+
+	BulletManager bulletMangr;
+	EnemyManager enemyMangr;
+
+	vector<Enemy*> *enemyList = enemyMangr.GetEnemyVector();
+	vector<Bullet*> *bulletList = bulletMangr.GetBulletVector();
+
+	Enemy::manager = &enemyMangr;
+	Bullet::manager = &bulletMangr;
 	//|-----------------------------|
 	//|PLAYER/ENEMY SHIT STARTS HERE|
 	//|-----------------------------|
@@ -51,39 +58,31 @@ int main()
 	//Renderables array, gonna store all entities(?) that want to be rendered
 	// pair<Renderable object, Render priority>
 	//Priority will render from 0 -> inf, so bigger the value the more on top it will render
-	vector<pair<int, Renderable*>> renderables;
+	//vector<pair<int, Renderable*>> renderables;
 	//We gotta update shit too
-	vector<Entity*> updateables;
+	//vector<Entity*> updateables;
+
+
 
 	//Instantiate player
 	Player player(Vector2f(480, 480));
-	renderables.push_back({0, &player});
-	updateables.push_back(&player);
-
-	//Clocks
-	sf::Clock bulletDelay;
+	//renderables.push_back({0, &player});
+	//updateables.push_back(&player);
+	player.currentGun = new Gun("Cummy", 6, 6, 0.5f, 0.5f);
 
 	//Zombie spawn delay
 	sf::Clock zombieSpawnDelay;
 	int zombieSpawnDelayRANDOFFSET = rand() % 4;
 
-	//Array for storing all da bullets and enemies
-	std::vector<Bullet*> bulletInstances;
-
 	//Instantiate enemies, give them textures
-	//PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE CHECK FOR MEMORY LEAKS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	std::vector<Enemy*> enemyInstances(ZOMBIE_AMOUNT);
 	for (int i = 0; i < ZOMBIE_AMOUNT; i++) {
 		sf::Vector2f randSpawn = nmUtils::RandSpawn();
 		cout << randSpawn.x << " " << randSpawn.y;
-		enemyInstances[i] = new Enemy(nmUtils::RandSpawn(), &player);
-		enemyInstances[i]->sprDefault.setTexture(tEnemy);
-		updateables.push_back(enemyInstances[i]);
-		renderables.push_back({ 2, enemyInstances[i] });
+		enemyMangr.SpawnEnemy(randSpawn, &player);
 	}
 
 	//CREATE THE MANAGER
-	colManager.Set(&player, &enemyInstances, &bulletInstances);
+	colManager.Set(&player, enemyList, bulletList);
 
 		//Debug shit
 		sf::CircleShape circle;
@@ -104,7 +103,7 @@ int main()
 			}
 		}
 
-		//Player movement
+		//Techniskai turetu but PlayerController klasej, but nera pakankai input kad justifyint development time :^)
 		Vector2f playerVelCurrent = player.GetVel();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 			playerVelCurrent = sf::Vector2f(playerVelCurrent.x, playerVelCurrent.y - ACCELERATION);
@@ -120,9 +119,10 @@ int main()
 		}
 		player.SetVel(playerVelCurrent);
 
-		//Update the updatables
-		for (auto entity : updateables) {
-			entity->Update();
+		//SHOOT STYLE
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && player.currentGun != nullptr) {
+			sf::Vector2f aimDirection = nmUtils::VectorBetweenPoints(player.GetPos(), (sf::Vector2f)sf::Mouse::getPosition(app));
+				bulletMangr.SpawnBullet(player.currentGun->Fire(aimDirection));
 		}
 
 		//Make Player Face Mouse
@@ -130,30 +130,29 @@ int main()
 		player.LookAt(sf::Vector2f(sf::Mouse::getPosition(app).x, sf::Mouse::getPosition(app).y));
 
 
+		//Update the updatables
+		player.Update();
+
+		vector<Bullet*> bulletListTemp = *bulletList;
+		for (auto& entity : bulletListTemp) {
+			entity->Update();
+		}
+
+		for (auto& entity : *enemyList) {
+			entity->Update();
+		}
+
 		//draw bg
 		app.draw(sprBackground);
 
-
-		for (auto& rendered : renderables) {
-			app.draw(rendered.second->sprDefault);
-		}
-
-		//Old drawing code, to be edited
-		/*
-		//draw enemies
-		for (int i = 0; i < enemyInstances.size(); i++) {
-			app.draw(enemyInstances[i].sprDefault);
-		}
-
-		//draw bullets
-		for (int i = 0; i < bulletInstances.size(); i++) {
-			app.draw(bulletInstances[i].circle);
-		}
-
-		//draw player
 		app.draw(player.sprDefault);
+		for (auto& entity : *bulletList) {
+			app.draw(entity->sprDefault);
+		}
+		for (auto& entity : *enemyList) {
+			app.draw(entity->sprDefault);
+		}
 
-		*/
 			//Debug shit
 			circle.setPosition((sf::Vector2f)sf::Mouse::getPosition(app));
 			app.draw(circle);

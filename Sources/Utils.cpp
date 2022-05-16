@@ -18,6 +18,11 @@ float nmUtils::DistanceBetween(const sf::Vector2f &point1,const sf::Vector2f &po
 	return sqrt(pow(point1.x - point2.x,2) + pow(point1.y - point2.y,2));
 }
 
+sf::Vector2f nmUtils::VectorBetweenPoints(const sf::Vector2f& point1, const sf::Vector2f& point2)
+{
+	return sf::Vector2f(point2.x - point1.x, point2.y - point1.y);
+}
+
 sf::Vector2f nmUtils::RandVector2f()
 {
 	int x = rand() % 3 - 1;
@@ -27,10 +32,10 @@ sf::Vector2f nmUtils::RandVector2f()
 }
 
 sf::Vector2f nmUtils::RandSpawn() {
-	sf::Vector2f position;
-	position.x = rand() % 100 - 50;
-	position.y = rand() % 100 - 50;
-	if (position.x > 0) position.x += WINDOW_WIDTH;
-	if (position.y > 0) position.y += WINDOW_HEIGHT;
-	return position;
+	sf::Vector2f _position;
+	_position.x = rand() % 100 - 50;
+	_position.y = rand() % 100 - 50;
+	if (_position.x > 0) _position.x += WINDOW_WIDTH;
+	if (_position.y > 0) _position.y += WINDOW_HEIGHT;
+	return _position;
 }
