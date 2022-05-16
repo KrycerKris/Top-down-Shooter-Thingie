@@ -51,7 +51,7 @@ Enemy* EnemyManager::SpawnEnemy(sf::Vector2f startPos, Player* player) {
 	return *_enemies.rbegin();
 }
 
-void EnemyManager::DespawnEnemy(Enemy *enemy) {
+void EnemyManager::_DespawnEnemy(Enemy *enemy) {
 	auto it = find(_enemies.begin(), _enemies.end(), enemy);
 	if (it != _enemies.end()) {
 		delete* it;
@@ -61,6 +61,17 @@ void EnemyManager::DespawnEnemy(Enemy *enemy) {
 
 vector<Enemy*>* EnemyManager::GetEnemyVector() {
 	return &_enemies;
+}
+
+void EnemyManager::EnqueueDelete(Enemy* enemy) {
+	_deleteQueue.push_back(enemy);
+}
+
+void EnemyManager::DeleteQueue() {
+	for (auto& enemy : _deleteQueue) {
+		_DespawnEnemy(enemy);
+	}
+	_deleteQueue.clear();
 }
 
 BulletManager::BulletManager() {
@@ -78,11 +89,22 @@ Bullet* BulletManager::SpawnBullet(Bullet *bullet) {
 	return bullet;
 }
 
-void BulletManager::DespawnBullet(Bullet* bullet) {
+void BulletManager::_DespawnBullet(Bullet* bullet) {
 	auto it = find(_bullets.begin(), _bullets.end(), bullet);
 	if (it != _bullets.end()) {
 		delete *it;
-		_bullets.erase(it);
+		it = _bullets.erase(it);
+	}
+}
+
+void BulletManager::EnqueueDelete(Bullet* bullet) {
+	_deleteQueue.push_back(bullet);
+	_deleteQueue.clear();
+}
+
+void BulletManager::DeleteQueue() {
+	for (auto& bullet : _deleteQueue) {
+		_DespawnBullet(bullet);
 	}
 }
 

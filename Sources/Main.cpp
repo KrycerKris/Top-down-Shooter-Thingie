@@ -68,7 +68,7 @@ int main()
 	Player player(Vector2f(480, 480));
 	//renderables.push_back({0, &player});
 	//updateables.push_back(&player);
-	player.currentGun = new Gun("Cummy", 6, 6, 0.5f, 0.5f);
+	player.currentGun = new Gun("Cummy", 6, 6, 0.5f, 2.f);
 
 	//Zombie spawn delay
 	sf::Clock zombieSpawnDelay;
@@ -121,7 +121,9 @@ int main()
 
 		//SHOOT STYLE
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && player.currentGun != nullptr) {
-			sf::Vector2f aimDirection = nmUtils::VectorBetweenPoints(player.GetPos(), (sf::Vector2f)sf::Mouse::getPosition(app));
+			sf::Vector2f aimDirection = nmUtils::NormaliseVector2f(
+				nmUtils::VectorBetweenPoints(player.GetPos(), (sf::Vector2f)sf::Mouse::getPosition(app))
+			);
 				bulletMangr.SpawnBullet(player.currentGun->Fire(aimDirection));
 		}
 
@@ -133,14 +135,16 @@ int main()
 		//Update the updatables
 		player.Update();
 
-		vector<Bullet*> bulletListTemp = *bulletList;
-		for (auto& entity : bulletListTemp) {
+		for (auto& entity : *bulletList) {
 			entity->Update();
 		}
 
 		for (auto& entity : *enemyList) {
 			entity->Update();
 		}
+
+		enemyMangr.DeleteQueue();
+		bulletMangr.DeleteQueue();
 
 		//draw bg
 		app.draw(sprBackground);

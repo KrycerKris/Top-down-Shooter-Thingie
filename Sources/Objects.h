@@ -44,6 +44,7 @@ private:
 	std::string _name;
 	int _curClip, _maxClip;
 	float _timeReload, _timeFireDelay;
+	sf::Clock cl_timeReload, cl_timeFire;
 public:
 	void Update();
 	Gun(std::string name, int curClip, int maxClip, float timeReload, float timeFireDelay);

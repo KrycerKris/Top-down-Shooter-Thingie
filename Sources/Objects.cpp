@@ -132,7 +132,7 @@ void Enemy::Update() {
 	sprDefault.setPosition(_position.x, _position.y);
 
 	if (health < 0) {
-		Enemy::manager->DespawnEnemy(this);
+		Enemy::manager->EnqueueDelete(this);
 	}
 }
 
@@ -153,7 +153,12 @@ void Bullet::Update() {
 	Enemy* hitObj = colManager.CheckColl(this);
 	if (hitObj) {
 		hitObj->Hurt(_damage);
-		Bullet::manager->DespawnBullet(this);
+		Bullet::manager->EnqueueDelete(this);
+	}
+
+	if (_position.x > WINDOW_WIDTH || _position.x < 0
+		|| _position.y > WINDOW_HEIGHT, _position.y < 0) {
+		Bullet::manager->EnqueueDelete(this);
 	}
 }
 
@@ -173,8 +178,12 @@ Gun::Gun(std::string name, int curClip, int maxClip, float timeReload, float tim
 }
 
 Bullet* Gun::Fire(sf::Vector2f direction) {
-	if (_curClip > 0) {
+	if (_curClip > 0 
+		&& cl_timeFire.getElapsedTime().asSeconds() >= _timeFireDelay
+		&& cl_timeReload.getElapsedTime().asSeconds() >= _timeReload) {
 		return new Bullet(_position, direction, 1);
+		cl_timeFire.restart();
+
 	}
 	return nullptr;
 }

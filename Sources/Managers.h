@@ -53,22 +53,28 @@ public:
 class BulletManager {
 private:
 	vector<Bullet*> _bullets;
+	vector<Bullet*> _deleteQueue;
+	void _DespawnBullet(Bullet* bullet);
 public:
 	BulletManager();
 	Bullet* SpawnBullet(sf::Vector2f position, sf::Vector2f direction, int damage);
 	Bullet* SpawnBullet(Bullet *bullet);
-	void DespawnBullet(Bullet *bullet);
 	vector<Bullet*>* GetBulletVector();
+	void EnqueueDelete(Bullet* bullet);
+	void DeleteQueue();
 };
 
 class EnemyManager {
 private:
 	vector<Enemy*> _enemies;
+	vector<Enemy*> _deleteQueue;
+	void _DespawnEnemy(Enemy* enemy);
 public:
 	EnemyManager();
 	Enemy* SpawnEnemy(sf::Vector2f startPos, Player* player);
-	void DespawnEnemy(Enemy* enemy);
 	vector<Enemy*>* GetEnemyVector();
+	void EnqueueDelete(Enemy* enemy);
+	void DeleteQueue();
 };
 
 extern CollisionManager colManager;
